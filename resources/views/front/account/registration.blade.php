@@ -35,7 +35,7 @@
                     </form>                    
                 </div>
                 <div class="mt-4 text-center">
-                    <p>Have an account? <a href="login.html">Login</a></p>
+                    <p>Have an account? <a href="{{ route('account.login') }}">Login</a></p>
                 </div>
             </div>
         </div>
@@ -46,82 +46,111 @@
 
 @section('customJs')
 <script>
-$("#registrationForm").submit(function(e){
-    e.preventDefault();
-    // You click submit → form quietly talks to the server → gets a response → updates part of the page.
-    $.ajax({
-        url: '{{ route("account.processRegistration") }}',
-        type: 'post',
-        data: $("#registrationForm").serialize(),
-        dataType: 'json',
-        success: function (response) {
-            if (response.status === false) { // Fixed comparison operator
-                var errors = response.errors;
-                
-                // Handle name errors
-                if (errors.name) {
-                    $("#name").addClass('is-invalid')
-                        .siblings('p')
-                        .addClass('invalid-feedback')
-                        .html(errors.name);
-                } else {
-                    $("#name").removeClass('is-invalid')
-                        .siblings('p')
-                        .removeClass('invalid-feedback')
-                        .html('');
-                }
-                
-                // Handle email errors
-                if (errors.email) {
-                    $("#email").addClass('is-invalid')
-                        .siblings('p')
-                        .addClass('invalid-feedback')
-                        .html(errors.email);
-                } else {
-                    $("#email").removeClass('is-invalid')
-                        .siblings('p')
-                        .removeClass('invalid-feedback')
-                        .html('');
-                }
-
-                // Handle password errors
-                if (errors.password) {
-                    $("#password").addClass('is-invalid')
-                        .siblings('p')
-                        .addClass('invalid-feedback')
-                        .html(errors.password);
-                } else {
-                    $("#password").removeClass('is-invalid')
-                        .siblings('p')
-                        .removeClass('invalid-feedback')
-                        .html('');
-                }
-
-                // Handle confirm password errors
-                if (errors.password_confirmation) {
-                    $("#confirm_password").addClass('is-invalid')
-                        .siblings('p')
-                        .addClass('invalid-feedback')
-                        .html(errors.password_confirmation);
-                } else {
-                    $("#confirm_password").removeClass('is-invalid')
-                        .siblings('p')
-                        .removeClass('invalid-feedback')
-                        .html('');
-                }
-            }
-        }
-    });
-});
-</script>
-@endsection
-
-<script>
+    // CSRF token setup
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
-</script> 
+
+    $("#registrationForm").submit(function(e){
+        e.preventDefault();
+        $.ajax({
+            url: '{{ route("account.processRegistration") }}',
+            type: 'post',
+            data: $("#registrationForm").serialize(),
+            dataType: 'json',
+            success: function (response) {
+                if (response.status === false) {
+                    var errors = response.errors;
+                    
+                    // Handle name errors
+                    if (errors.name) {
+                        $("#name").addClass('is-invalid')
+                            .siblings('p')
+                            .addClass('invalid-feedback')
+                            .html(errors.name);
+                    } else {
+                        $("#name").removeClass('is-invalid')
+                            .siblings('p')
+                            .removeClass('invalid-feedback')
+                            .html('');
+                    }
+
+                    // Handle email errors
+                    if (errors.email) {
+                        $("#email").addClass('is-invalid')
+                            .siblings('p')
+                            .addClass('invalid-feedback')
+                            .html(errors.email);
+                    } else {
+                        $("#email").removeClass('is-invalid')
+                            .siblings('p')
+                            .removeClass('invalid-feedback')
+                            .html('');
+                    }
+
+                    // Handle password errors
+                    if (errors.password) {
+                        $("#password").addClass('is-invalid')
+                            .siblings('p')
+                            .addClass('invalid-feedback')
+                            .html(errors.password);
+                    } else {
+                        $("#password").removeClass('is-invalid')
+                            .siblings('p')
+                            .removeClass('invalid-feedback')
+                            .html('');
+                    }
+
+                    // Handle confirm password errors
+                    if (errors.confirm_password) {
+                        $("#confirm_password").addClass('is-invalid')
+                            .siblings('p')
+                            .addClass('invalid-feedback')
+                            .html(errors.confirm_password);
+                    } else {
+                        $("#confirm_password").removeClass('is-invalid')
+                            .siblings('p')
+                            .removeClass('invalid-feedback')
+                            .html('');
+                    }
+
+                } else {
+                    // SUCCESS: Clear errors + reset form
+                    $("#registrationForm")[0].reset();
+
+                    $("#name").removeClass('is-invalid')
+                        .siblings('p')
+                        .removeClass('invalid-feedback')
+                        .html('');
+
+                    $("#email").removeClass('is-invalid')
+                        .siblings('p')
+                        .removeClass('invalid-feedback')
+                        .html('');
+
+                    $("#password").removeClass('is-invalid')
+                        .siblings('p')
+                        .removeClass('invalid-feedback')
+                        .html('');
+
+                    $("#confirm_password").removeClass('is-invalid')
+                        .siblings('p')
+                        .removeClass('invalid-feedback')
+                        .html('');
+
+                    alert('Registration successful!');
+                    window.location.href = "{{ route('account.login') }}";
+                }
+            }
+        });
+    });
+</script>
+@endsection
+
+
+
+
 
 
